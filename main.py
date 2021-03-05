@@ -15,12 +15,12 @@ def get_db():
     finally:
         db.close()
 
-@app.get('/topic/{topic_id}', response_model=TopicResponse)
+@app.get('/api/topic/{topic_id}', response_model=TopicResponse)
 def read_topic(topic_id: int, db: Session = Depends(get_db)):
     response = TopicResponse(data=get_topic(db, topic_id))
     return response
 
-@app.get('/thread/{thread_id}', response_model=ThreadResponse)
+@app.get('/api/thread/{thread_id}', response_model=ThreadResponse)
 def read_thread(thread_id: int, db: Session = Depends(get_db)):
     response = ThreadResponse(data=get_thread(db, thread_id))
     return response
