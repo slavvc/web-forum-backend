@@ -1,7 +1,7 @@
 from pydantic import BaseModel
-from typing import Optional, Literal
+from typing import Optional, Literal, List, Tuple
 
-class Topic(BaseModel):
+class DBTopic(BaseModel):
     id: int
     title: Optional[str] = None
     num_topics: Optional[int] = None
@@ -10,11 +10,7 @@ class Topic(BaseModel):
     class Config():
         orm_mode = True
 
-class TopicResponse(BaseModel):
-    type: Literal['topic'] = 'topic'
-    data: Topic
-
-class Thread(BaseModel):
+class DBThread(BaseModel):
     id: int
     title: Optional[str] = None
     num_posts: Optional[int] = None
@@ -22,6 +18,53 @@ class Thread(BaseModel):
     is_vegan: bool = False
     class Config():
         orm_mode = True
+
+class DBPost(BaseModel):
+    id: int
+    user: Optional[str]
+    text: Optional[str]
+    class Config():
+        orm_mode = True
+
+class PathElement(BaseModel):
+    id: int
+    title: Optional[str]
+
+Path = List[PathElement]
+
+class TopicData(BaseModel):
+    title: Optional[str]
+    link: int
+    numTopics: Optional[int]
+    numThreads: Optional[int]
+    lastPost: Optional[str]
+
+class ThreadData(BaseModel):
+    title: Optional[str]
+    link: int
+    numPosts: Optional[int]
+    lastPost: Optional[str]
+    isVegan: bool
+
+class Topic(BaseModel):
+    title: Optional[str] = None
+    topics: List[TopicData]
+    threads: List[ThreadData]
+    path: Path
+
+class TopicResponse(BaseModel):
+    type: Literal['topic'] = 'topic'
+    data: Topic
+
+
+class PostData(BaseModel):
+    user: Optional[str]
+    text: Optional[str]
+
+class Thread(BaseModel):
+    title: Optional[str]
+    posts: List[PostData]
+    path: Path
 
 class ThreadResponse(BaseModel):
     type: Literal['thread'] = 'thread'
