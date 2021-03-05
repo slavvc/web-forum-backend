@@ -41,6 +41,7 @@ def make_topic_tree(depth):
                 threads.append(thread)
 
                 num_posts = randint(0, 10)
+                thread.num_posts = num_posts
                 for _ in range(num_posts):
                     post = make_post()
                     post.parent = thread
