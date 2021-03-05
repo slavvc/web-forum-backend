@@ -17,6 +17,9 @@ class Topic(Base):
     parent_id = Column(Integer, ForeignKey('topics.id'))
     parent = relationship('Topic', remote_side=[id], backref='children_topics')
 
+    def __repr__(self):
+        return f'topic [id: {self.id}, title: {self.title}]'
+
 class Thread(Base):
     __tablename__ = 'threads'
 
@@ -29,6 +32,9 @@ class Thread(Base):
 
     parent_id = Column(Integer, ForeignKey('topics.id'))
     parent = relationship('Topic', backref='children_threads')
+    
+    def __repr__(self):
+        return f'thread [id: {self.id}, title: {self.title}]'
 
 class Post(Base):
     __tablename__ = 'posts'
@@ -39,3 +45,6 @@ class Post(Base):
 
     parent_id = Column(Integer, ForeignKey('threads.id'))
     parent = relationship('Thread', backref='children_posts')
+    
+    def __repr__(self):
+        return f'post [id: {self.id}, user: {self.user}, text: {self.text[:10]}]'
