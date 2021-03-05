@@ -2,6 +2,12 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String, ForeignKey, Boolean
 from sqlalchemy.orm import relationship
 
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy import create_engine
+
+engine = create_engine('sqlite:///db.sqlite')
+DBSession = sessionmaker(bind=engine)
+
 
 Base = declarative_base()
 
