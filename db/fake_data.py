@@ -60,7 +60,9 @@ def make_topic_tree(depth):
 
 def populate_db(session):
     data = make_topic_tree(5)
-
+    data['topics'][0].id = 0
+    data['threads'][0].id = 0
+    data['posts'][0].id = 0
     for item in data['topics'] + data['threads'] + data['posts']:
         session.add(item)
     session.commit()
