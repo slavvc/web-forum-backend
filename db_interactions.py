@@ -69,12 +69,13 @@ def get_topic_path(topic: Topic) -> schema.Path:
         if parent is not None:
             path.append(parent)
             recur_add_parent(parent)
+    recur_add_parent(topic)
     return [
         {
             'id': topic.id,
             'title': topic.title
         }
-        for topic in path
+        for topic in reversed(path)
     ]
 
 def get_thread_path(thread):
