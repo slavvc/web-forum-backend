@@ -1,5 +1,5 @@
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, String, ForeignKey, Boolean
+from sqlalchemy import Column, Integer, String, ForeignKey, Boolean, DateTime
 from sqlalchemy.orm import relationship
 
 from sqlalchemy.orm import sessionmaker
@@ -10,6 +10,7 @@ DBSession = sessionmaker(bind=engine)
 
 
 Base = declarative_base()
+
 
 class Topic(Base):
     __tablename__ = 'topics'
@@ -25,6 +26,7 @@ class Topic(Base):
 
     def __repr__(self):
         return f'topic [id: {self.id}, title: {self.title}]'
+
 
 class Thread(Base):
     __tablename__ = 'threads'
@@ -42,6 +44,7 @@ class Thread(Base):
     def __repr__(self):
         return f'thread [id: {self.id}, title: {self.title}]'
 
+
 class Post(Base):
     __tablename__ = 'posts'
 
@@ -54,3 +57,17 @@ class Post(Base):
     
     def __repr__(self):
         return f'post [id: {self.id}, user: {self.user}, text: {self.text[:10]}]'
+
+
+class User(Base):
+    __tablename__ = 'users'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String, nullable=False, unique=True)
+    password_hash = Column(String, nullable=False)
+    password_salt = Column(String, nullable=False)
+    token = Column(String)
+    token_expires_at = Column(DateTime)
+
+    def __repr__(self):
+        return f'user [id: {self.id}, name: {self.name}]'

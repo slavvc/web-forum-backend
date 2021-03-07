@@ -1,11 +1,21 @@
-from db.definitions import Topic, Thread, Post
+from typing import Optional
+from db.definitions import Topic, Thread, Post, User, Base, DBSession
 import schema
 from humps import camelize
+from datetime import datetime, timedelta
+
+from utils import make_password, make_token
 
 from sqlalchemy.orm import Session
 
 
-def get_topic(session: Session, id: int) -> schema.Topic:
+def init_db():
+    session = DBSession()
+    engine = session.get_bind()
+    Base.metadata.create_all(engine)
+
+
+def get_topic(session: Session, id: int) -> Optional[schema.Topic]:
     topic = session.query(Topic).get(id)
     if topic is None:
         return None
@@ -37,7 +47,7 @@ def get_topic(session: Session, id: int) -> schema.Topic:
     )
 
 
-def get_thread(session: Session, id: int) -> schema.Thread:
+def get_thread(session: Session, id: int) -> Optional[schema.Thread]:
     thread = session.query(Thread).get(id)
     if thread is None:
         return None
@@ -57,12 +67,15 @@ def get_thread(session: Session, id: int) -> schema.Thread:
         posts=posts
     )
 
+
 def get_thread_posts(session, id):
     thread = get_thread(session, id)
     return thread.children_posts if thread is not None else None
 
+
 def get_topic_path(topic: Topic) -> schema.Path:
     path = [topic]
+
     def recur_add_parent(topic):
         nonlocal path
         parent = topic.parent
@@ -71,12 +84,13 @@ def get_topic_path(topic: Topic) -> schema.Path:
             recur_add_parent(parent)
     recur_add_parent(topic)
     return [
-        {
-            'id': topic.id,
-            'title': topic.title
-        }
+        schema.PathElement(
+            id=topic.id,
+            title=topic.title
+        )
         for topic in reversed(path)
     ]
+
 
 def get_thread_path(thread):
     parent = thread.parent
@@ -84,3 +98,56 @@ def get_thread_path(thread):
         return get_topic_path(parent)
     else:
         return []
+
+
+def get_user_by_id(session: Session, id: int) -> Optional[schema.User]:
+    user = session.query(User).get(id)
+    if user is None:
+        return None
+    db_user = schema.DBUser.from_orm(user)
+    return schema.User(**db_user.dict())
+
+
+def get_user_by_name(session: Session, username: str) -> schema.DBUser:
+    user = session.query(User).filter(User.name == username).one()
+    db_user = schema.DBUser.from_orm(user)
+    return db_user
+
+
+def get_user_by_token(session: Session, token: str) -> Optional[schema.User]:
+    users = session.query(User).filter(User.token == token).all()
+    if len(users) != 1:
+        return None
+    user = users[0]
+    db_user = schema.DBUser.from_orm(user)
+    if datetime.now() > db_user.token_expires_at:
+        return None
+    return schema.User(**db_user.dict())
+
+
+def set_user_token(session: Session, username: str) -> str:
+    token = make_token()
+    expires_at = datetime.now() + timedelta(days=1)
+    session.query(User).filter(User.name == username)\
+        .update({
+            User.token: token,
+            User.token_expires_at: expires_at
+        })
+    session.commit()
+    return token
+
+
+def add_user(session: Session, username: str, password: str):
+    hash, salt = make_password(password)
+    user = User(
+        name=username,
+        password_hash=hash,
+        password_salt=salt
+    )
+    session.add(user)
+    session.commit()
+
+
+def user_exists(session: Session, username: str):
+    count = session.query(User).filter(User.name == username).count()
+    return count == 1
