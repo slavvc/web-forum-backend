@@ -1,16 +1,13 @@
-from db_definitions import Base
+from db_definitions import Base, DBSession
 from fake_data import populate_db
 
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-
-
-engine = create_engine('sqlite:///db.sqlite')
-
-Base.metadata.drop_all(engine)
-Base.metadata.create_all(engine)
-
-DBSession = sessionmaker(bind=engine)
-
 session = DBSession()
-populate_db(session)
+try:
+    engine = session.get_bind()
+
+    Base.metadata.drop_all(engine)
+    Base.metadata.create_all(engine)
+
+    populate_db(session)
+finally:
+    session.close()
