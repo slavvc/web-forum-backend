@@ -108,3 +108,7 @@ class User(BaseModel):
 class TokenResponse(BaseModel):
     access_token: str
     token_type: Literal['bearer'] = 'bearer'
+
+
+class Error(BaseModel):
+    detail: str

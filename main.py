@@ -5,7 +5,7 @@ from db_interactions import get_topic, get_thread, get_user_by_name, get_user_by
 from db_interactions import user_exists, add_user, init_db, set_user_token, thread_exists
 from db_interactions import add_post, post_belongs_to_user, remove_post
 from utils import password_is_good, check_password
-from schema import TopicResponse, ThreadResponse, User, TokenResponse
+from schema import TopicResponse, ThreadResponse, User, TokenResponse, Error
 
 from sqlalchemy.orm import Session
 
@@ -27,31 +27,46 @@ def get_db():
 def require_user(token: str = Depends(oauth2_schema), db: Session = Depends(get_db)):
     user = get_user_by_token(db, token)
     if user is None:
-        raise HTTPException(status_code=400, detail='Invalid token')
+        raise HTTPException(status_code=401, detail='Invalid token')
     return user
 
 
-@app.get('/api/topic/{topic_id}', response_model=TopicResponse)
+@app.get(
+    '/api/topic/{topic_id}', response_model=TopicResponse,
+    responses={400: {'model': Error}}
+)
 def read_topic(topic_id: int, db: Session = Depends(get_db)):
-    response = TopicResponse(data=get_topic(db, topic_id))
+    topic = get_topic(db, topic_id)
+    if topic is None:
+        raise HTTPException(status_code=400, detail='Topic does not exist')
+    response = TopicResponse(data=topic)
     return response
 
 
-@app.get('/api/thread/{thread_id}', response_model=ThreadResponse)
+@app.get(
+    '/api/thread/{thread_id}', response_model=ThreadResponse,
+    responses={400: {'model': Error}}
+)
 def read_thread(thread_id: int, db: Session = Depends(get_db)):
-    response = ThreadResponse(data=get_thread(db, thread_id))
+    thread = get_thread(db, thread_id)
+    if thread is None:
+        raise HTTPException(status_code=400, detail='Thread does not exist')
+    response = ThreadResponse(data=thread)
     return response
 
 
-@app.get('/api/user', response_model=User)
+@app.get('/api/user', response_model=User, responses={401: {'model': Error}})
 def read_user(user: User = Depends(require_user)):
     return user
 
 
-@app.post('/api/authenticate', response_model=TokenResponse)
+@app.post(
+    '/api/authenticate', response_model=TokenResponse,
+    responses={400: {'model': Error}}
+)
 def request_token(form: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     if not user_exists(db, form.username):
-        raise HTTPException(status_code=401, detail='User does not exist')
+        raise HTTPException(status_code=400, detail='User does not exist')
     user = get_user_by_name(db, form.username)
     check = check_password(form.password, user.password_hash, user.password_salt)
     if check:
@@ -61,10 +76,13 @@ def request_token(form: OAuth2PasswordRequestForm = Depends(), db: Session = Dep
             'token_type': 'bearer'
         }
     else:
-        raise HTTPException(status_code=401, detail='Wrong password')
+        raise HTTPException(status_code=400, detail='Wrong password')
 
 
-@app.post('/api/signup', status_code=status.HTTP_204_NO_CONTENT)
+@app.post(
+    '/api/signup', status_code=status.HTTP_204_NO_CONTENT,
+    responses={400: {'model': Error}}
+)
 def create_user(username: str, password: str, db: Session = Depends(get_db)):
     if user_exists(db, username):
         raise HTTPException(status_code=400, detail='User already exists')
@@ -74,7 +92,10 @@ def create_user(username: str, password: str, db: Session = Depends(get_db)):
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
-@app.post('/api/message', status_code=status.HTTP_204_NO_CONTENT)
+@app.post(
+    '/api/message', status_code=status.HTTP_204_NO_CONTENT,
+    responses={400: {'model': Error}, 401: {'model': Error}}
+)
 def post_message(
     thread_id: int,
     message: str,
@@ -87,7 +108,10 @@ def post_message(
         raise HTTPException(status_code=400, detail='Thread does not exist')
 
 
-@app.delete('/api/message', status_code=status.HTTP_204_NO_CONTENT)
+@app.delete(
+    '/api/message', status_code=status.HTTP_204_NO_CONTENT,
+    responses={400: {'model': Error}, 401: {'model': Error}}
+)
 def delete_message(
     post_id: int,
     user: User = Depends(require_user), db: Session = Depends(get_db)
