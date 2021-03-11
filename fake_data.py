@@ -1,11 +1,14 @@
 from lorem import get_paragraph, get_sentence, get_word
-from definitions import Topic, Thread, Post
+from db.definitions import Topic, Thread, Post, User
 from random import randint
+from utils import make_password
+
 
 def make_topic():
     return Topic(
         title=get_word()
     )
+
 
 def make_thread():
     return Thread(
@@ -13,13 +16,30 @@ def make_thread():
         is_vegan=randint(0,1) == 1
     )
 
-def make_post():
+
+def make_post(user_id):
     return Post(
-        user='$username',
+        user_id=user_id,
         text=get_sentence()
     )
 
-def make_topic_tree(depth):
+
+USER_NUMBER = 1
+
+
+def make_user():
+    global USER_NUMBER
+    hash, salt = make_password(f'Password{USER_NUMBER}')
+    user = User(
+        name=f'User{USER_NUMBER}',
+        password_hash=hash,
+        password_salt=salt
+    )
+    USER_NUMBER += 1
+    return user
+
+
+def make_topic_tree(depth, n_users):
     def recur(current_depth, parent):
         nonlocal topics, threads, posts
         if current_depth < depth:
@@ -43,27 +63,39 @@ def make_topic_tree(depth):
                 num_posts = randint(0, 10)
                 thread.num_posts = num_posts
                 for _ in range(num_posts):
-                    post = make_post()
+                    user_id = randint(0, n_users)
+                    post = make_post(user_id)
                     post.parent = thread
                     posts.append(post)
 
     topics = []
     threads = []
     posts = []
+    users = [
+        make_user()
+        for _ in range(n_users)
+    ]
     recur(0, None)
 
     return {
         'topics': topics, 
         'threads': threads, 
-        'posts': posts
+        'posts': posts,
+        'users': users
     }
     
 
 def populate_db(session):
-    data = make_topic_tree(5)
+    data = make_topic_tree(5, 10)
     data['topics'][0].id = 0
     data['threads'][0].id = 0
     data['posts'][0].id = 0
-    for item in data['topics'] + data['threads'] + data['posts']:
+    data['users'][0].id = 0
+    for item in (
+              data['topics']
+            + data['threads']
+            + data['posts']
+            + data['users']
+    ):
         session.add(item)
     session.commit()

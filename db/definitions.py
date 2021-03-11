@@ -20,8 +20,8 @@ class Topic(Base):
     num_topics = Column(Integer)
     num_threads = Column(Integer)
     last_post = Column(String)
-
     parent_id = Column(Integer, ForeignKey('topics.id'))
+
     parent = relationship('Topic', remote_side=[id], backref='children_topics')
 
     def __repr__(self):
@@ -37,8 +37,8 @@ class Thread(Base):
     num_posts = Column(Integer)
     last_post = Column(String)
     is_vegan = Column(Boolean)
-
     parent_id = Column(Integer, ForeignKey('topics.id'))
+
     parent = relationship('Topic', backref='children_threads')
     
     def __repr__(self):
@@ -49,12 +49,13 @@ class Post(Base):
     __tablename__ = 'posts'
 
     id = Column(Integer, primary_key=True)
-    user = Column(String)
+    user_id = Column(Integer, ForeignKey('users.id'))
     text = Column(String)
-
     parent_id = Column(Integer, ForeignKey('threads.id'))
+
     parent = relationship('Thread', backref='children_posts')
-    
+    user = relationship('User', backref='posts')
+
     def __repr__(self):
         return f'post [id: {self.id}, user: {self.user}, text: {self.text[:10]}]'
 
@@ -66,7 +67,7 @@ class User(Base):
     name = Column(String, nullable=False, unique=True)
     password_hash = Column(String, nullable=False)
     password_salt = Column(String, nullable=False)
-    token = Column(String)
+    token = Column(String, index=True)
     token_expires_at = Column(DateTime)
 
     def __repr__(self):

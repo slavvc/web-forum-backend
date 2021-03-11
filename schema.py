@@ -27,8 +27,9 @@ class DBThread(BaseModel):
 
 class DBPost(BaseModel):
     id: int
-    user: Optional[str]
+    user_id: int
     text: Optional[str]
+    parent_id: int
 
     class Config:
         orm_mode = True
@@ -85,6 +86,7 @@ class TopicResponse(BaseModel):
 class PostData(BaseModel):
     user: Optional[str]
     text: Optional[str]
+    id: int
 
 
 class Thread(BaseModel):
@@ -101,3 +103,8 @@ class ThreadResponse(BaseModel):
 class User(BaseModel):
     id: int
     name: str
+
+
+class TokenResponse(BaseModel):
+    access_token: str
+    token_type: Literal['bearer'] = 'bearer'

@@ -57,7 +57,8 @@ def get_thread(session: Session, id: int) -> Optional[schema.Thread]:
         schema.PostData(
             **camelize(
                 schema.DBPost.from_orm(post).dict()
-            )
+            ),
+            user=post.user.name
         )
         for post in thread.children_posts
     )
@@ -100,12 +101,12 @@ def get_thread_path(thread):
         return []
 
 
-def get_user_by_id(session: Session, id: int) -> Optional[schema.User]:
-    user = session.query(User).get(id)
-    if user is None:
-        return None
-    db_user = schema.DBUser.from_orm(user)
-    return schema.User(**db_user.dict())
+# def get_user_by_id(session: Session, id: int) -> Optional[schema.User]:
+#     user = session.query(User).get(id)
+#     if user is None:
+#         return None
+#     db_user = schema.DBUser.from_orm(user)
+#     return schema.User(**db_user.dict())
 
 
 def get_user_by_name(session: Session, username: str) -> schema.DBUser:
@@ -151,3 +152,32 @@ def add_user(session: Session, username: str, password: str):
 def user_exists(session: Session, username: str):
     count = session.query(User).filter(User.name == username).count()
     return count == 1
+
+
+def thread_exists(session: Session, thread_id: int):
+    count = session.query(Thread).filter(Thread.id == thread_id).count()
+    return count == 1
+
+
+def add_post(session: Session, thread_id: int, user: schema.User, text: str):
+    post = Post(
+        user_id=user.id,
+        text=text,
+        parent_id=thread_id
+    )
+    session.add(post)
+    session.commit()
+
+
+def post_belongs_to_user(session: Session, post_id: int, user_id: int) -> bool:
+    post: Optional[Post] = session.query(Post).get(post_id)
+    if post is None:
+        return False
+    db_post = schema.DBPost.from_orm(post)
+    return db_post.user_id == user_id
+
+
+def remove_post(session: Session, post_id: int):
+    post = session.query(Post).get(post_id)
+    session.delete(post)
+    session.commit()

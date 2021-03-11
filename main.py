@@ -1,11 +1,12 @@
 from typing import Optional
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from db.definitions import DBSession
 from db_interactions import get_topic, get_thread, get_user_by_name, get_user_by_token
-from db_interactions import user_exists, add_user, init_db, set_user_token
+from db_interactions import user_exists, add_user, init_db, set_user_token, thread_exists
+from db_interactions import add_post, post_belongs_to_user, remove_post
 from utils import password_is_good, check_password
-from schema import TopicResponse, ThreadResponse, User
+from schema import TopicResponse, ThreadResponse, User, TokenResponse
 
 from sqlalchemy.orm import Session
 
@@ -24,7 +25,7 @@ def get_db():
         db.close()
 
 
-def require_user(token: str = Depends(oauth2_schema), db: Session = Depends(get_db)):
+def require_user(token: str = Depends(oauth2_schema), db: Session = Depends(get_db, use_cache=False)):
     user = get_user_by_token(db, token)
     if user is None:
         raise HTTPException(status_code=400, detail='Invalid token')
@@ -48,8 +49,8 @@ def read_user(user: User = Depends(require_user)):
     return user
 
 
-@app.post('/api/authenticate')
-def request_token(form: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+@app.post('/api/authenticate', response_model=TokenResponse)
+def request_token(form: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db, use_cache=False)):
     if not user_exists(db, form.username):
         raise HTTPException(status_code=401, detail='User does not exist')
     user = get_user_by_name(db, form.username)
@@ -65,9 +66,34 @@ def request_token(form: OAuth2PasswordRequestForm = Depends(), db: Session = Dep
 
 
 @app.post('/api/signup')
-def write_user(username: str, password: str, db: Session = Depends(get_db)):
+def write_user(username: str, password: str, db: Session = Depends(get_db, use_cache=False)):
     if user_exists(db, username):
         raise HTTPException(status_code=400, detail='User already exists')
     if not password_is_good(password):
         raise HTTPException(status_code=400, detail='Password is not good')
     add_user(db, username, password)
+
+
+@app.post('/api/message', status_code=status.HTTP_204_NO_CONTENT)
+def post_message(
+    thread_id: int,
+    message: str,
+    user: User = Depends(require_user), db: Session = Depends(get_db, use_cache=False)
+):
+    if thread_exists(db, thread_id):
+        add_post(db, thread_id, user, message)
+    else:
+        raise HTTPException(status_code=400, detail='Thread does not exist')
+
+
+@app.delete('/api/message', status_code=status.HTTP_204_NO_CONTENT)
+def delete_message(
+    post_id: int,
+    user: User = Depends(require_user), db: Session = Depends(get_db, use_cache=False)
+):
+    if post_belongs_to_user(db, post_id, user.id):
+        remove_post(db, post_id)
+    else:
+        raise HTTPException(status_code=400, detail='The post does not belong to the user')
+# FIXME: too much data is returned for status code
+# FIXME: sqlite thread thing keep happening

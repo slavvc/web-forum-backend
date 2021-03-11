@@ -1,4 +1,4 @@
-from definitions import Base
+from db.definitions import Base
 from fake_data import populate_db
 
 from sqlalchemy import create_engine
@@ -10,7 +10,7 @@ engine = create_engine('sqlite:///db.sqlite')
 Base.metadata.drop_all(engine)
 Base.metadata.create_all(engine)
 
-DBsession = sessionmaker(bind=engine)
+DBSession = sessionmaker(bind=engine)
 
-session = DBsession()
+session = DBSession()
 populate_db(session)

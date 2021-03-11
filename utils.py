@@ -10,20 +10,16 @@ def make_token():
 
 
 def make_salt():
-    letters = [
-        secrets.choice(ALPHABET)
-        for _ in range(512)
-    ]
-    return bytes(letters)
+    return secrets.token_urlsafe(512)
 
 
 def make_password(password: str) -> (str, str):
     salt = make_salt()
     hasher = sha512()
     hasher.update(password.encode('ascii'))
-    hasher.update(salt)
+    hasher.update(salt.encode('ascii'))
     password_hash = hasher.hexdigest()
-    return password_hash, salt.decode('ascii')
+    return password_hash, salt
 
 
 def check_password(
