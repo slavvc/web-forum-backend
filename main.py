@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi import FastAPI, Depends, HTTPException, status, Response
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from db_definitions import DBSession
 from db_interactions import get_topic, get_thread, get_user_by_name, get_user_by_token
@@ -64,13 +64,14 @@ def request_token(form: OAuth2PasswordRequestForm = Depends(), db: Session = Dep
         raise HTTPException(status_code=401, detail='Wrong password')
 
 
-@app.post('/api/signup')
-def write_user(username: str, password: str, db: Session = Depends(get_db)):
+@app.post('/api/signup', status_code=status.HTTP_204_NO_CONTENT)
+def create_user(username: str, password: str, db: Session = Depends(get_db)):
     if user_exists(db, username):
         raise HTTPException(status_code=400, detail='User already exists')
     if not password_is_good(password):
         raise HTTPException(status_code=400, detail='Password is not good')
     add_user(db, username, password)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @app.post('/api/message', status_code=status.HTTP_204_NO_CONTENT)
@@ -81,6 +82,7 @@ def post_message(
 ):
     if thread_exists(db, thread_id):
         add_post(db, thread_id, user, message)
+        return Response(status_code=status.HTTP_204_NO_CONTENT)
     else:
         raise HTTPException(status_code=400, detail='Thread does not exist')
 
@@ -92,6 +94,6 @@ def delete_message(
 ):
     if post_belongs_to_user(db, post_id, user.id):
         remove_post(db, post_id)
+        return Response(status_code=status.HTTP_204_NO_CONTENT)
     else:
         raise HTTPException(status_code=400, detail='The post does not belong to the user')
-# FIXME: too much data is returned for status code

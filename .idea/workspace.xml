@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="b7423bf1-9317-4e5f-8359-775541bac669" name="Default Changelist" comment="">
+    <list default="true" id="b7423bf1-9317-4e5f-8359-775541bac669" name="Default Changelist" comment="fix: use session from db_definitions in create.py">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/create.py" beforeDir="false" afterPath="$PROJECT_DIR$/create.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/db.sqlite" beforeDir="false" afterPath="$PROJECT_DIR$/db.sqlite" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -138,7 +138,14 @@
       <option name="project" value="LOCAL" />
       <updated>1615421751796</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="fix: use session from db_definitions in create.py">
+      <created>1615422552621</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1615422552621</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -169,7 +176,8 @@
     <MESSAGE value="feature: add post message and delete message" />
     <MESSAGE value="fix: set check_same_thread to False for SQLite" />
     <MESSAGE value="refactor: remove db folder" />
-    <option name="LAST_COMMIT_MESSAGE" value="refactor: remove db folder" />
+    <MESSAGE value="fix: use session from db_definitions in create.py" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix: use session from db_definitions in create.py" />
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/db/create.py">
