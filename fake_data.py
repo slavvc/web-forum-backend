@@ -1,5 +1,5 @@
-from lorem import get_paragraph, get_sentence, get_word
-from db.definitions import Topic, Thread, Post, User
+from lorem import get_sentence, get_word
+from db_definitions import Topic, Thread, Post, User
 from random import randint
 from utils import make_password
 

@@ -1,5 +1,5 @@
 from typing import Optional
-from db.definitions import Topic, Thread, Post, User, Base, DBSession
+from db_definitions import Topic, Thread, Post, User, Base, DBSession
 import schema
 from humps import camelize
 from datetime import datetime, timedelta

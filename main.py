@@ -1,7 +1,6 @@
-from typing import Optional
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from db.definitions import DBSession
+from db_definitions import DBSession
 from db_interactions import get_topic, get_thread, get_user_by_name, get_user_by_token
 from db_interactions import user_exists, add_user, init_db, set_user_token, thread_exists
 from db_interactions import add_post, post_belongs_to_user, remove_post

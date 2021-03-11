@@ -1,4 +1,4 @@
-from db.definitions import Base
+from db_definitions import Base
 from fake_data import populate_db
 
 from sqlalchemy import create_engine
