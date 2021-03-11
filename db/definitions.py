@@ -5,7 +5,10 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 
-engine = create_engine('sqlite:///db.sqlite')
+engine = create_engine(
+    'sqlite:///db.sqlite',
+    connect_args={'check_same_thread': False}
+)
 DBSession = sessionmaker(bind=engine)
 
 

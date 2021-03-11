@@ -1,16 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="b7423bf1-9317-4e5f-8359-775541bac669" name="Default Changelist" comment="feature: add post message and delete message">
+    <list default="true" id="b7423bf1-9317-4e5f-8359-775541bac669" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/db.sqlite" beforeDir="false" afterPath="$PROJECT_DIR$/db.sqlite" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/create.py" beforeDir="false" afterPath="$PROJECT_DIR$/create.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/db/definitions.py" beforeDir="false" afterPath="$PROJECT_DIR$/db/definitions.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/fake_data.py" beforeDir="false" afterPath="$PROJECT_DIR$/fake_data.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db_interactions.py" beforeDir="false" afterPath="$PROJECT_DIR$/db_interactions.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/schema.py" beforeDir="false" afterPath="$PROJECT_DIR$/schema.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -123,6 +118,14 @@
       <option name="presentableId" value="Default" />
       <updated>1615072483272</updated>
     </task>
+    <task id="LOCAL-00001" summary="feature: add post message and delete message">
+      <created>1615421126542</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1615421126542</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="ToolWindowManager">

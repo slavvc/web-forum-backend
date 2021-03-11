@@ -25,7 +25,7 @@ def get_db():
         db.close()
 
 
-def require_user(token: str = Depends(oauth2_schema), db: Session = Depends(get_db, use_cache=False)):
+def require_user(token: str = Depends(oauth2_schema), db: Session = Depends(get_db)):
     user = get_user_by_token(db, token)
     if user is None:
         raise HTTPException(status_code=400, detail='Invalid token')
@@ -50,7 +50,7 @@ def read_user(user: User = Depends(require_user)):
 
 
 @app.post('/api/authenticate', response_model=TokenResponse)
-def request_token(form: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db, use_cache=False)):
+def request_token(form: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     if not user_exists(db, form.username):
         raise HTTPException(status_code=401, detail='User does not exist')
     user = get_user_by_name(db, form.username)
@@ -66,7 +66,7 @@ def request_token(form: OAuth2PasswordRequestForm = Depends(), db: Session = Dep
 
 
 @app.post('/api/signup')
-def write_user(username: str, password: str, db: Session = Depends(get_db, use_cache=False)):
+def write_user(username: str, password: str, db: Session = Depends(get_db)):
     if user_exists(db, username):
         raise HTTPException(status_code=400, detail='User already exists')
     if not password_is_good(password):
@@ -78,7 +78,7 @@ def write_user(username: str, password: str, db: Session = Depends(get_db, use_c
 def post_message(
     thread_id: int,
     message: str,
-    user: User = Depends(require_user), db: Session = Depends(get_db, use_cache=False)
+    user: User = Depends(require_user), db: Session = Depends(get_db)
 ):
     if thread_exists(db, thread_id):
         add_post(db, thread_id, user, message)
@@ -89,11 +89,10 @@ def post_message(
 @app.delete('/api/message', status_code=status.HTTP_204_NO_CONTENT)
 def delete_message(
     post_id: int,
-    user: User = Depends(require_user), db: Session = Depends(get_db, use_cache=False)
+    user: User = Depends(require_user), db: Session = Depends(get_db)
 ):
     if post_belongs_to_user(db, post_id, user.id):
         remove_post(db, post_id)
     else:
         raise HTTPException(status_code=400, detail='The post does not belong to the user')
 # FIXME: too much data is returned for status code
-# FIXME: sqlite thread thing keep happening
