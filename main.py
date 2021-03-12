@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, HTTPException, status, Response
+from fastapi import FastAPI, Depends, HTTPException, status, Response, Form
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from db_definitions import DBSession
 from db_interactions import get_topic, get_thread, get_user_by_name, get_user_by_token
@@ -83,7 +83,10 @@ def request_token(form: OAuth2PasswordRequestForm = Depends(), db: Session = Dep
     '/api/signup', status_code=status.HTTP_204_NO_CONTENT,
     responses={400: {'model': Error}}
 )
-def create_user(username: str, password: str, db: Session = Depends(get_db)):
+def create_user(
+        username: str = Form(...), password: str = Form(...),
+        db: Session = Depends(get_db)
+):
     if user_exists(db, username):
         raise HTTPException(status_code=400, detail='User already exists')
     if not password_is_good(password):
@@ -97,8 +100,8 @@ def create_user(username: str, password: str, db: Session = Depends(get_db)):
     responses={400: {'model': Error}, 401: {'model': Error}}
 )
 def post_message(
-    thread_id: int,
-    message: str,
+    thread_id: int = Form(...),
+    message: str = Form(...),
     user: User = Depends(require_user), db: Session = Depends(get_db)
 ):
     if thread_exists(db, thread_id):
@@ -113,7 +116,7 @@ def post_message(
     responses={400: {'model': Error}, 401: {'model': Error}}
 )
 def delete_message(
-    post_id: int,
+    post_id: int = Form(...),
     user: User = Depends(require_user), db: Session = Depends(get_db)
 ):
     if post_belongs_to_user(db, post_id, user.id):
