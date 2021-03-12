@@ -8,8 +8,7 @@ from sqlalchemy import create_engine
 import os
 
 engine = create_engine(
-    os.environ['DATABASE_URL'],
-    connect_args={'check_same_thread': False}
+    os.environ['DATABASE_URL']
 )
 DBSession = sessionmaker(bind=engine)
 
