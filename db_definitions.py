@@ -7,11 +7,17 @@ from sqlalchemy import create_engine
 
 import os
 
-DATABASE_URL = os.environ['DATABASE_URL'] if 'DATABASE_URL' in os.environ else 'sqlite:///db.sqlite'
 
-engine = create_engine(
-    DATABASE_URL
-)
+if 'DATABASE_URL' in os.environ:
+    engine = create_engine(
+        os.environ['DATABASE_URL']
+    )
+else:
+    engine = create_engine(
+        'sqlite:///db.sqlite',
+        connect_args={'check_same_thread': False}
+    )
+
 DBSession = sessionmaker(bind=engine)
 
 
@@ -24,6 +30,7 @@ class Topic(Base):
     id = Column(Integer, primary_key=True)
     title = Column(String)
     parent_id = Column(Integer, ForeignKey('topics.id'))
+    user_id = Column(Integer, ForeignKey('users.id'))
 
     parent = relationship('Topic', remote_side=[id], backref='children_topics')
 
@@ -39,6 +46,7 @@ class Thread(Base):
     title = Column(String)
     is_vegan = Column(Boolean)
     parent_id = Column(Integer, ForeignKey('topics.id'))
+    user_id = Column(Integer, ForeignKey('users.id'))
 
     parent = relationship('Topic', backref='children_threads')
     

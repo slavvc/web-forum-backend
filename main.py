@@ -4,6 +4,7 @@ from db_definitions import DBSession
 from db_interactions import get_topic, get_thread, get_user_by_name, get_user_by_token
 from db_interactions import user_exists, add_user, init_db, set_user_token, thread_exists
 from db_interactions import add_post, post_belongs_to_user, remove_post
+from db_interactions import topic_exists, add_topic, add_thread
 from utils import password_is_good, check_password
 from schema import TopicResponse, ThreadResponse, User, TokenResponse, Error
 
@@ -124,3 +125,36 @@ def delete_message(
         return Response(status_code=status.HTTP_204_NO_CONTENT)
     else:
         raise HTTPException(status_code=400, detail='The post does not belong to the user')
+
+
+@app.post(
+    '/api/topic', status_code=status.HTTP_204_NO_CONTENT,
+    responses={400: {'model': Error}, 401: {'model': Error}}
+)
+def create_topic(
+        title: str = Form(...),
+        parent_id: int = Form(...),
+        user: User = Depends(require_user), db: Session = Depends(get_db)
+):
+    if topic_exists(db, parent_id):
+        add_topic(db, title, parent_id, user.id)
+        return Response(status_code=status.HTTP_204_NO_CONTENT)
+    else:
+        raise HTTPException(status_code=400, detail='Parent topic does not exist')
+
+
+@app.post(
+    '/api/thread', status_code=status.HTTP_204_NO_CONTENT,
+    responses={400: {'model': Error}, 401: {'model': Error}}
+)
+def create_thread(
+        title: str = Form(...),
+        parent_id: int = Form(...),
+        is_vegan: bool = Form(...),
+        user: User = Depends(require_user), db: Session = Depends(get_db)
+):
+    if topic_exists(db, parent_id):
+        add_thread(db, title, is_vegan, parent_id, user.id)
+        return Response(status_code=status.HTTP_204_NO_CONTENT)
+    else:
+        raise HTTPException(status_code=400, detail='Parent topic does not exist')

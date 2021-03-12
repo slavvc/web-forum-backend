@@ -3,21 +3,37 @@ from db_definitions import Topic, Thread, Post, User, Base, DBSession
 import schema
 from humps import camelize
 from datetime import datetime, timedelta
+import os
 
 from utils import make_password, make_token
 
 from sqlalchemy.orm import Session
+
+ROOT_PASSWORD = os.environ['ROOT_PASSWORD'] if 'ROOT_PASSWORD' in os.environ else 'toor'
 
 
 def init_db():
     session = DBSession()
     engine = session.get_bind()
     Base.metadata.create_all(engine)
-    home_topic = Topic(
-        id=0,
-        title='Home'
-    )
-    session.add(home_topic)
+    root_exists = session.query(User).filter(User.id == 0).count()
+    if not root_exists:
+        hash, salt = make_password(ROOT_PASSWORD)
+        root_user = User(
+            id=0,
+            name='root',
+            password_hash=hash,
+            password_salt=salt
+        )
+        session.add(root_user)
+    home_exists = session.query(Topic).filter(Topic.id == 0).count()
+    if not home_exists:
+        home_topic = Topic(
+            id=0,
+            title='Home',
+            user_id=0
+        )
+        session.add(home_topic)
     session.commit()
 
 
@@ -189,4 +205,30 @@ def post_belongs_to_user(session: Session, post_id: int, user_id: int) -> bool:
 def remove_post(session: Session, post_id: int):
     post = session.query(Post).get(post_id)
     session.delete(post)
+    session.commit()
+
+
+def topic_exists(session: Session, topic_id: int) -> bool:
+    count = session.query(Topic).filter(Topic.id == topic_id).count()
+    return count == 1
+
+
+def add_topic(session: Session, title: str, parent_id: int, user_id: int):
+    topic = Topic(
+        title=title,
+        parent_id=parent_id,
+        user_id=user_id
+    )
+    session.add(topic)
+    session.commit()
+
+
+def add_thread(session: Session, title: str, is_vegan: bool, parent_id: int, user_id: int):
+    thread = Thread(
+        title=title,
+        is_vegan=is_vegan,
+        parent_id=parent_id,
+        user_id=user_id
+    )
+    session.add(thread)
     session.commit()
