@@ -13,6 +13,12 @@ def init_db():
     session = DBSession()
     engine = session.get_bind()
     Base.metadata.create_all(engine)
+    home_topic = Topic(
+        id=0,
+        title='Home'
+    )
+    session.add(home_topic)
+    session.commit()
 
 
 def get_topic(session: Session, id: int) -> Optional[schema.Topic]:
@@ -26,7 +32,9 @@ def get_topic(session: Session, id: int) -> Optional[schema.Topic]:
             **camelize(
                 schema.DBTopic.from_orm(sub_topic).dict()
             ),
-            link=sub_topic.id
+            link=sub_topic.id,
+            num_topics=len(sub_topic.children_topics),
+            num_threads=len(sub_topic.children_threads)
         )
         for sub_topic in topic.children_topics
     )
@@ -35,7 +43,8 @@ def get_topic(session: Session, id: int) -> Optional[schema.Topic]:
             **camelize(
                 schema.DBThread.from_orm(sub_thread).dict()
             ),
-            link=sub_thread.id
+            link=sub_thread.id,
+            num_posts=len(sub_thread.children_posts)
         )
         for sub_thread in topic.children_threads
     )

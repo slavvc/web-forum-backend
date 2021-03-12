@@ -6,9 +6,6 @@ from datetime import datetime
 class DBTopic(BaseModel):
     id: int
     title: Optional[str] = None
-    num_topics: Optional[int] = None
-    num_threads: Optional[int] = None
-    last_post: Optional[str] = None
 
     class Config:
         orm_mode = True
@@ -17,8 +14,6 @@ class DBTopic(BaseModel):
 class DBThread(BaseModel):
     id: int
     title: Optional[str] = None
-    num_posts: Optional[int] = None
-    last_post: Optional[str] = None
     is_vegan: bool = False
 
     class Config:
