@@ -49,8 +49,8 @@ def get_topic(session: Session, id: int) -> Optional[schema.Topic]:
                 schema.DBTopic.from_orm(sub_topic).dict()
             ),
             link=sub_topic.id,
-            num_topics=len(sub_topic.children_topics),
-            num_threads=len(sub_topic.children_threads)
+            numTopics=len(sub_topic.children_topics),
+            numThreads=len(sub_topic.children_threads)
         )
         for sub_topic in topic.children_topics
     )
@@ -60,7 +60,7 @@ def get_topic(session: Session, id: int) -> Optional[schema.Topic]:
                 schema.DBThread.from_orm(sub_thread).dict()
             ),
             link=sub_thread.id,
-            num_posts=len(sub_thread.children_posts)
+            numPosts=len(sub_thread.children_posts)
         )
         for sub_thread in topic.children_threads
     )
