@@ -2,7 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="b7423bf1-9317-4e5f-8359-775541bac669" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/db_interactions.py" beforeDir="false" afterPath="$PROJECT_DIR$/db_interactions.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -164,7 +166,14 @@
       <option name="project" value="LOCAL" />
       <updated>1615592627972</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="fix: change Union to Literal in db_interactions.py">
+      <created>1615992414808</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1615992414808</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -199,7 +208,8 @@
     <MESSAGE value="fix: return Response() for empty body" />
     <MESSAGE value="fix: add correct response models on errors" />
     <MESSAGE value="feature: add create_thread and create_topic" />
-    <option name="LAST_COMMIT_MESSAGE" value="feature: add create_thread and create_topic" />
+    <MESSAGE value="fix: change Union to Literal in db_interactions.py" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix: change Union to Literal in db_interactions.py" />
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/db/create.py">

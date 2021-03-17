@@ -177,6 +177,14 @@ def add_user(session: Session, username: str, password: str):
     session.commit()
 
 
+def change_user_password(session: Session, user_id: int, password: str):
+    user: User = session.query(User).get(user_id)
+    hash, salt = make_password(password)
+    user.password_hash = hash
+    user.password_salt = salt
+    session.commit()
+
+
 def user_exists(session: Session, username: str):
     count = session.query(User).filter(User.name == username).count()
     return count == 1

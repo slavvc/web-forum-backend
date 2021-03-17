@@ -6,7 +6,7 @@ from db_interactions import user_exists, add_user, init_db, set_user_token, thre
 from db_interactions import add_post, post_belongs_to_user, remove_post
 from db_interactions import topic_exists, add_topic, add_thread
 from db_interactions import topic_belongs_to_user, thread_belongs_to_user
-from db_interactions import remove_topic, remove_thread
+from db_interactions import remove_topic, remove_thread, change_user_password
 from utils import password_is_good, check_password
 from schema import TopicResponse, ThreadResponse, User, TokenResponse, Error
 
@@ -190,3 +190,20 @@ def delete_thread(
         return Response(status_code=status.HTTP_204_NO_CONTENT)
     else:
         raise HTTPException(status_code=400, detail='The thread does not belong to the user')
+
+
+@app.post(
+    '/api/password', status_code=status.HTTP_204_NO_CONTENT,
+    responses={400: {'model': Error}, 401: {'model': Error}}
+)
+def change_password(
+        old_password: str = Form(...), new_password: str = Form(...),
+        user: User = Depends(require_user), db: Session = Depends(get_db)
+):
+    db_user = get_user_by_name(db, user.name)
+    check = check_password(old_password, db_user.password_hash, db_user.password_salt)
+    if check:
+        change_user_password(db, user.id, new_password)
+        return Response(status_code=status.HTTP_204_NO_CONTENT)
+    else:
+        raise HTTPException(status_code=400, detail='Wrong password')
