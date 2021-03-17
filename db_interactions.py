@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Union
 from db_definitions import Topic, Thread, Post, User, Base, DBSession
 import schema
 from humps import camelize
@@ -50,7 +50,8 @@ def get_topic(session: Session, id: int) -> Optional[schema.Topic]:
             ),
             link=sub_topic.id,
             numTopics=len(sub_topic.children_topics),
-            numThreads=len(sub_topic.children_threads)
+            numThreads=len(sub_topic.children_threads),
+            user=schema.User.from_orm(sub_topic.user)
         )
         for sub_topic in topic.children_topics
     )
@@ -60,7 +61,8 @@ def get_topic(session: Session, id: int) -> Optional[schema.Topic]:
                 schema.DBThread.from_orm(sub_thread).dict()
             ),
             link=sub_thread.id,
-            numPosts=len(sub_thread.children_posts)
+            numPosts=len(sub_thread.children_posts),
+            user=schema.User.from_orm(sub_thread.user)
         )
         for sub_thread in topic.children_threads
     )
@@ -68,7 +70,8 @@ def get_topic(session: Session, id: int) -> Optional[schema.Topic]:
         title=title,
         path=path,
         topics=topics,
-        threads=threads
+        threads=threads,
+        user=schema.User.from_orm(topic.user)
     )
 
 
@@ -83,7 +86,7 @@ def get_thread(session: Session, id: int) -> Optional[schema.Thread]:
             **camelize(
                 schema.DBPost.from_orm(post).dict()
             ),
-            user=post.user.name
+            user=schema.User.from_orm(post.user)
         )
         for post in thread.children_posts
     )
@@ -194,12 +197,32 @@ def add_post(session: Session, thread_id: int, user: schema.User, text: str):
     session.commit()
 
 
-def post_belongs_to_user(session: Session, post_id: int, user_id: int) -> bool:
-    post: Optional[Post] = session.query(Post).get(post_id)
-    if post is None:
+DB_SCHEMA = {
+    Post: schema.DBPost,
+    Thread: schema.DBThread,
+    Topic: schema.DBTopic
+}
+
+
+def row_belongs_to_user(
+        session: Session, row_id: int,
+        user_id: int, table: Union[Post, Thread, Topic]
+):
+    row: Optional[table] = session.query(table).get(row_id)
+    if row is None:
         return False
-    db_post = schema.DBPost.from_orm(post)
-    return db_post.user_id == user_id
+    db_row = DB_SCHEMA[table].from_orm(row)
+    return db_row.user_id == user_id
+
+
+def remove_row(session: Session, row_id: int, table: Union[Post, Thread, Topic]):
+    row = session.query(table).get(row_id)
+    session.delete(row)
+    session.commit()
+
+
+def post_belongs_to_user(session: Session, post_id: int, user_id: int) -> bool:
+    return row_belongs_to_user(session, post_id, user_id, Post)
 
 
 def remove_post(session: Session, post_id: int):
@@ -232,3 +255,19 @@ def add_thread(session: Session, title: str, is_vegan: bool, parent_id: int, use
     )
     session.add(thread)
     session.commit()
+
+
+def remove_topic(session: Session, topic_id: int):
+    remove_row(session, topic_id, Topic)
+
+
+def remove_thread(session: Session, thread_id: int):
+    remove_row(session, thread_id, Thread)
+
+
+def thread_belongs_to_user(session: Session, thread_id: int, user_id: int):
+    return row_belongs_to_user(session, thread_id, user_id, Thread)
+
+
+def topic_belongs_to_user(session: Session, topic_id: int, user_id: int):
+    return row_belongs_to_user(session, topic_id, user_id, Topic)

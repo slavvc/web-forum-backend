@@ -5,6 +5,7 @@ from datetime import datetime
 
 class DBTopic(BaseModel):
     id: int
+    user_id: int
     title: Optional[str] = None
 
     class Config:
@@ -13,6 +14,7 @@ class DBTopic(BaseModel):
 
 class DBThread(BaseModel):
     id: int
+    user_id: int
     title: Optional[str] = None
     is_vegan: bool = False
 
@@ -42,6 +44,14 @@ class DBUser(BaseModel):
         orm_mode = True
 
 
+class User(BaseModel):
+    id: int
+    name: str
+
+    class Config:
+        orm_mode = True
+
+
 class PathElement(BaseModel):
     id: int
     title: Optional[str]
@@ -56,6 +66,7 @@ class TopicData(BaseModel):
     numTopics: Optional[int]
     numThreads: Optional[int]
     lastPost: Optional[str]
+    user: User
 
 
 class ThreadData(BaseModel):
@@ -64,12 +75,14 @@ class ThreadData(BaseModel):
     numPosts: Optional[int]
     lastPost: Optional[str]
     isVegan: bool
+    user: User
 
 
 class Topic(BaseModel):
     title: Optional[str] = None
     topics: List[TopicData]
     threads: List[ThreadData]
+    user: User
     path: Path
 
 
@@ -79,7 +92,7 @@ class TopicResponse(BaseModel):
 
 
 class PostData(BaseModel):
-    user: Optional[str]
+    user: User
     text: Optional[str]
     id: int
 
@@ -93,11 +106,6 @@ class Thread(BaseModel):
 class ThreadResponse(BaseModel):
     type: Literal['thread'] = 'thread'
     data: Thread
-
-
-class User(BaseModel):
-    id: int
-    name: str
 
 
 class TokenResponse(BaseModel):

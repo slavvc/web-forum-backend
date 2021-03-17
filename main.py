@@ -5,6 +5,8 @@ from db_interactions import get_topic, get_thread, get_user_by_name, get_user_by
 from db_interactions import user_exists, add_user, init_db, set_user_token, thread_exists
 from db_interactions import add_post, post_belongs_to_user, remove_post
 from db_interactions import topic_exists, add_topic, add_thread
+from db_interactions import topic_belongs_to_user, thread_belongs_to_user
+from db_interactions import remove_topic, remove_thread
 from utils import password_is_good, check_password
 from schema import TopicResponse, ThreadResponse, User, TokenResponse, Error
 
@@ -158,3 +160,33 @@ def create_thread(
         return Response(status_code=status.HTTP_204_NO_CONTENT)
     else:
         raise HTTPException(status_code=400, detail='Parent topic does not exist')
+
+
+@app.delete(
+    '/api/topic', status_code=status.HTTP_204_NO_CONTENT,
+    responses={400: {'model': Error}, 401: {'model': Error}}
+)
+def delete_topic(
+        topic_id: int = Form(...),
+        user: User = Depends(require_user), db: Session = Depends(get_db)
+):
+    if topic_belongs_to_user(db, topic_id, user.id):
+        remove_topic(db, topic_id)
+        return Response(status_code=status.HTTP_204_NO_CONTENT)
+    else:
+        raise HTTPException(status_code=400, detail='The topic does not belong to the user')
+
+
+@app.delete(
+    '/api/thread', status_code=status.HTTP_204_NO_CONTENT,
+    responses={400: {'model': Error}, 401: {'model': Error}}
+)
+def delete_thread(
+        thread_id: int = Form(...),
+        user: User = Depends(require_user), db: Session = Depends(get_db)
+):
+    if thread_belongs_to_user(db, thread_id, user.id):
+        remove_thread(db, thread_id)
+        return Response(status_code=status.HTTP_204_NO_CONTENT)
+    else:
+        raise HTTPException(status_code=400, detail='The thread does not belong to the user')
