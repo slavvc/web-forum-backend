@@ -1,4 +1,4 @@
-from typing import Optional, Union
+from typing import Optional, Literal
 from db_definitions import Topic, Thread, Post, User, Base, DBSession
 import schema
 from humps import camelize
@@ -206,7 +206,7 @@ DB_SCHEMA = {
 
 def row_belongs_to_user(
         session: Session, row_id: int,
-        user_id: int, table: Union[Post, Thread, Topic]
+        user_id: int, table: Literal[Post, Thread, Topic]
 ):
     row: Optional[table] = session.query(table).get(row_id)
     if row is None:
@@ -215,7 +215,7 @@ def row_belongs_to_user(
     return db_row.user_id == user_id
 
 
-def remove_row(session: Session, row_id: int, table: Union[Post, Thread, Topic]):
+def remove_row(session: Session, row_id: int, table: Literal[Post, Thread, Topic]):
     row = session.query(table).get(row_id)
     session.delete(row)
     session.commit()
